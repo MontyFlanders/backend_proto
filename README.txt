@@ -1,44 +1,103 @@
-To run the build from command line, ensure that you have docker installed and are in the backend_proto directory, 
-then type "make up" which will expose the backend API on http://localhost:8000/graphql which you can put into your browser
-to see the queries which you can run. Testing still in progress, dont expect too much :)
+# Antiquity Atlas – Backend & API
 
-can now:
-- create user
-- create site
-- create post
-- get site by site id
-- get user by ID
+**Antiquity Atlas** is the backend service for a social media-based history sharing app. It enables users to share historical sites, vote on their authenticity, and discover new places through a recommendation engine.
 
-example user id is 4
-example historical site id is 6
-there is an example post attatched to the historical site (returned when querying sites)
+This backend was built from the ground up to support a scalable front-end, using modern cloud-native architecture and graph-based relationships for historical data.
 
-here is query to get a site, and the posts that reference it:
-query MyQuery {
-  site(id: 6) {
-    id
-    posts {
-      author {
-        id
-        name
-      }
-      likes
-      dislikes
-      content
-      title
-      id
-      siteId
-      userId
-    }
+--- 
+
+## 🚀 Features
+- **Unified GraphQL API** – Query Neo4j (graph DB), PostGIS (geo-data), and AWS S3 in a single request.
+- **Recommendation Engine** – Powered by Neo4j to suggest historical sites based on user interactions.
+- **Planned Authentication** – AWS Cognito integration for secure user management in production.
+- **Geo-Query Optimization** – PostGIS with custom indexing for efficient location-based lookups.
+- **Serverless & Scalable** – FastAPI backend deployed on AWS Lambda for cost-effective scaling.
+- **Automated Content Population** – Scraped 2,500+ historical sites from U.S. National Parks and archives.
+- **Dockerized Deployment** – All services containerized for smooth development and CI/CD workflows.
+
+---
+
+## 🛠 Tech Stack
+- **Frameworks:** FastAPI, GraphQL (Ariadne)
+- **Databases:** Neo4j, PostgreSQL + PostGIS
+- **Cloud:** AWS Lambda, AWS S3, AWS Cognito (planned)
+- **Containerization:** Docker
+- **Languages:** Python 3
+- **Other Tools:** pytest, GitHub Actions (optional for CI)
+
+---
+
+## 📂 Project Structure
+├── app/
+│ ├── main.py # FastAPI entry point
+│ ├── api/ # GraphQL and REST endpoints
+│ ├── services/ # Business logic and DB interactions
+│ ├── schemas/ # Pydantic models
+│ └── tests/ # pytest-based test suite
+├── docker-compose.yml
+├── Dockerfile
+├── requirements.txt
+└── README.md---
+
+## ⚙️ Setup Instructions
+
+### **Prerequisites**
+- Docker and Docker Compose
+- Python 3.10+
+- An AWS account (optional for future cloud features)
+
+### **Local Development**
+```bash
+# Clone the repo
+git clone https://github.com/YourUsername/antiquity-atlas-backend.git
+cd antiquity-atlas-backend
+
+# Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run locally
+uvicorn app.main:app --reload
+
+# Docker
+docker build -t antiquity-backend .
+docker-compose up
+The backend will be available at:
+http://localhost:8000/graphql (GraphQL Playground)
+
+📊 API Highlights
+GraphQL Queries: Aggregate data from Neo4j, PostGIS, and AWS S3.
+
+Geo Queries: Example:
+
+graphql
+Copy
+Edit
+{
+  nearbySites(lat: 40.7128, lon: -74.0060, radiusKm: 10) {
+    name
     description
-    dislikes
-    likes
-    title
   }
 }
 
+📜 About This Project
+This backend is part of my senior capstone project at the University of Utah, built to demonstrate real-world, production-ready backend development.
+Role: Lead backend developer, responsible for architecture, database design, API implementation, and AWS deployment.
 
-if you get error that says no env file 
+🔗 Links
+Author: Patrick West
 
-use command: export ENV_FILE = .env.local
-then type make up
+GitHub: Antiquity Atlas Backend
+
+🧪 Future Improvements
+Integrate AWS Cognito for secure authentication.
+
+Add caching layers (Redis) for frequently accessed queries.
+
+Expand CI/CD with GitHub Actions for automated deployment.
+
+Add rate limiting and advanced logging for production-grade scaling.
+
