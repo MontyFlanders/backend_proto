@@ -1,0 +1,48 @@
+services:
+  postgis:
+    image: postgis/postgis:16-3.4
+    container_name: local_postgis
+    env_file:
+      - ${ENV_FILE}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+
+  neo4j:
+    image: neo4j:5.15
+    container_name: local_neo4j
+    env_file:
+      - ${ENV_FILE}
+    environment:
+      - NEO4J_AUTH=${NEO4J_AUTH}
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - ./data/neo4j:/data
+
+  api:
+    build: .
+    container_name: local_api
+    env_file:
+      - ${ENV_FILE}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgis
+      - neo4j
+      - minio
+
+  minio:
+      image: minio/minio
+      container_name: local_minio
+      environment:
+        MINIO_ROOT_USER: minio
+        MINIO_ROOT_PASSWORD: minio123
+      ports:
+        - "9000:9000"   # S3 API
+        - "9001:9001"   # MinIO web console
+      command: server /data --console-address ":9001"
+      volumes:
+        - ./data/minio:/data

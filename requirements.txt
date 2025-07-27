@@ -1,0 +1,10 @@
+fastapi>=0.109
+strawberry-graphql[fastapi]>=0.216
+mangum>=0.17.0
+asyncpg>=0.28.0
+neo4j>=5.15.0
+python-dotenv>=1.0.1
+pydantic>=2.5
+uvicorn[standard]>=0.25
+boto3
+

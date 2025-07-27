@@ -1,0 +1,67 @@
+# ----------------------------
+# Python / FastAPI
+# ----------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+*.egg-info/
+.eggs/
+*.log
+
+# Virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# Byte-compiled / Cython / Build files
+build/
+dist/
+*.so
+
+# ----------------------------
+# Environment / Config
+# ----------------------------
+.env
+.env.*
+!.env.example  # Keep an example env file for reference
+
+# ----------------------------
+# Docker
+# ----------------------------
+*.pid
+*.seed
+*.tar
+*.bak
+*.swp
+.docker/
+docker-compose.override.yml
+
+# ----------------------------
+# Neo4j Files
+# ----------------------------
+data/
+logs/
+import/
+plugins/
+neostore*
+*.id
+*.db
+*.log
+*.meta
+*.index
+*.lock
+server_id
+store_lock
+
+# ----------------------------
+# OS / Editor Specific
+# ----------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
