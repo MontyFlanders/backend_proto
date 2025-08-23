@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 
 # load the environment file dynamically
-load_dotenv(os.getenv("ENV_FILE", ".env.local"))
+load_dotenv(os.getenv("ENV_FILE", ".env"))
 
 # PostgreSQL Config
 DB_HOST = os.getenv("DB_HOST")

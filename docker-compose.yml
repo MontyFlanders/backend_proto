@@ -3,7 +3,7 @@ services:
     image: postgis/postgis:16-3.4
     container_name: local_postgis
     env_file:
-      - ${ENV_FILE}
+      - .env
     ports:
       - "5432:5432"
     volumes:
@@ -13,7 +13,7 @@ services:
     image: neo4j:5.15
     container_name: local_neo4j
     env_file:
-      - ${ENV_FILE}
+      - .env
     environment:
       - NEO4J_AUTH=${NEO4J_AUTH}
     ports:
@@ -21,18 +21,6 @@ services:
       - "7687:7687"
     volumes:
       - ./data/neo4j:/data
-
-  api:
-    build: .
-    container_name: local_api
-    env_file:
-      - ${ENV_FILE}
-    ports:
-      - "8000:8000"
-    depends_on:
-      - postgis
-      - neo4j
-      - minio
 
   minio:
       image: minio/minio
@@ -46,3 +34,104 @@ services:
       command: server /data --console-address ":9001"
       volumes:
         - ./data/minio:/data
+
+  # Keycloak's own Postgres
+  postgres:
+    image: postgres:16
+    container_name: keycloak_db
+    environment:
+      POSTGRES_DB: ${KC_POSTGRES_DB}
+      POSTGRES_USER: ${KC_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${KC_POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - keycloak_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0.6
+    container_name: local_keycloak
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${KC_POSTGRES_DB}
+      KC_DB_USERNAME: ${KC_POSTGRES_USER}
+      KC_DB_PASSWORD: ${KC_POSTGRES_PASSWORD}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_SPI_THEME_CACHE_THEMES: "false"
+      KC_SPI_THEME_CACHE_TEMPLATES: "false"
+      KC_SPI_THEME_STATIC_MAX_AGE: "-1"
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+
+      # strict hostnames is fine in dev if you set these two URLs explicitly:
+      KC_HOSTNAME_STRICT: "true"
+      KC_HOSTNAME_STRICT_BACKCHANNEL: "true"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+
+      # 👇 IMPORTANT: use localhost for BOTH
+      KC_HOSTNAME_URL:  http://localhost:8080
+      KC_HOSTNAME_ADMIN_URL: http://localhost:8080
+    
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ./keycloak-themes:/opt/keycloak/themes
+    networks:
+      - keycloak_network
+      - default
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "bash -lc 'exec 3<>/dev/tcp/127.0.0.1/8080 || exit 1; printf \"GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\n\\r\\n\" >&3; timeout 2 cat <&3 | grep -q \"\\\"status\\\"\\s*:\\s*\\\"UP\\\"\"'"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+
+  api:
+    build: .
+    container_name: local_api
+    env_file:
+      - .env
+    environment:
+      OIDC_ISSUER: ${OIDC_ISSUER}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}   
+      FASTAPI_SESSION_SECRET: ${FASTAPI_SESSION_SECRET}
+      APP_BASE_URL: ${APP_BASE_URL}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgis:
+        condition: service_started
+      neo4j:
+        condition: service_started
+      minio:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
+    networks:
+      - default
+      - keycloak_network
+
+networks:
+  keycloak_network:
+    driver: bridge
+
+volumes:
+  keycloak_data:
+  postgres_data:

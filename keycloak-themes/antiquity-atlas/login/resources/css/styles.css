@@ -1,0 +1,136 @@
+/* Antiquity Atlas — rustic/antique look
+   Tip: Keycloak dev mode can cache themes; disable with:
+   KC_SPI_THEME_CACHE_THEMES=false, KC_SPI_THEME_CACHE_TEMPLATES=false
+*/
+
+/* Optional Google Fonts (fallbacks provided if blocked) */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:wght@400;600&display=swap');
+
+:root{
+  --aa-bg: #f7f1e1;            /* parchment */
+  --aa-ink: #3e2f21;           /* dark sepia ink */
+  --aa-ink-soft: #5a4633;
+  --aa-gold: #b7925a;          /* brass/gold accent */
+  --aa-olive: #3a4a3a;         /* deep olive */
+  --aa-paper-edge: #e8dcc1;
+  --aa-shadow: rgba(0,0,0,.12);
+}
+
+/* Parchment background with a subtle grain */
+body, html {
+  background:
+    radial-gradient(1200px 600px at 10% 10%, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 60%),
+    radial-gradient(800px 400px at 90% 30%, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 70%),
+    linear-gradient(0deg, var(--aa-bg), var(--aa-bg));
+  color: var(--aa-ink);
+  font-family: "EB Garamond", Georgia, "Times New Roman", serif;
+}
+
+/* Center panel/card */
+.login-pf body, .login-pf {
+  background: transparent;
+}
+.login-pf-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 16px;
+}
+
+/* Card styling */
+.card-pf {
+  background: linear-gradient(180deg, #fcf8ee, #f6efdd);
+  border: 1px solid var(--aa-paper-edge);
+  border-radius: 14px;
+  box-shadow: 0 10px 24px var(--aa-shadow);
+  overflow: hidden;
+}
+
+/* Header area (logo + brand) */
+.aa-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 8px 8px 12px 8px;
+  padding: 8px 8px 0 8px;
+  border-bottom: 1px dashed rgba(90,70,51,.35);
+}
+.aa-logo {
+  width: 44px;
+  height: 44px;
+}
+.aa-brand .aa-name {
+  font-family: "Cinzel", "EB Garamond", Georgia, serif;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-size: 22px;
+  color: var(--aa-ink);
+}
+.aa-brand .aa-tag {
+  font-size: 12px;
+  color: var(--aa-ink-soft);
+}
+
+/* Titles */
+#kc-page-title, .login-pf-page .login-pf-brand {
+  font-family: "Cinzel", "EB Garamond", Georgia, serif !important;
+  color: var(--aa-ink);
+}
+
+/* Labels and inputs */
+.pf-c-form__label, label, .control-label {
+  color: var(--aa-ink);
+  font-weight: 600;
+}
+.pf-c-form-control, input[type="text"], input[type="password"], input[type="email"] {
+  background: #fffdfa;
+  border: 1px solid #e3d6bd;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px transparent;
+}
+.pf-c-form-control:focus,
+input:focus {
+  outline: none !important;
+  border-color: var(--aa-gold);
+  box-shadow: 0 0 0 3px rgba(183,146,90,.25);
+}
+
+/* Primary button */
+.pf-c-button.pf-m-primary, .btn-primary, input[type="submit"] {
+  background: linear-gradient(180deg, var(--aa-gold), #a6804b);
+  border: 1px solid #8e6f41;
+  color: #12100b;
+  font-weight: 700;
+  border-radius: 10px;
+}
+.pf-c-button.pf-m-primary:hover, .btn-primary:hover {
+  filter: brightness(0.97);
+}
+.pf-c-button, .btn {
+  border-radius: 10px;
+}
+
+/* Links */
+a, .btn-link {
+  color: var(--aa-olive);
+  text-decoration-color: rgba(58,74,58,.4);
+}
+a:hover, .btn-link:hover {
+  color: #2c3a2c;
+  text-decoration-color: rgba(58,74,58,.7);
+}
+
+/* Footer */
+.aa-footer {
+  margin: 10px 8px 6px 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(90,70,51,.35);
+  font-size: 12px;
+  color: var(--aa-ink-soft);
+  text-align: center;
+}
+
+/* Make the layout a tad narrower (vintage card vibe) */
+.login-pf-page .card-pf {
+  max-width: 420px;
+}

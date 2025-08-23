@@ -134,7 +134,7 @@ class PostgresAdapter:
                 4326 -- SRID
               )
             )
-            LIMIT $5
+            LIMIT 5
             """,
             ne_lat,
             ne_lng,
