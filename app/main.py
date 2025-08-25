@@ -6,15 +6,56 @@ from starlette.middleware.sessions import SessionMiddleware
 from authlib.integrations.starlette_client import OAuth
 from authlib.common.security import generate_token
 from authlib.oauth2.rfc7636 import create_s256_code_challenge
-
+import asyncpg
 from strawberry.fastapi import GraphQLRouter
 from . import graphql_schema
 from app.services.graph_service import GraphService
 from app.services.s3_service import S3Service
 from app.security.sessions import MemorySessions  # your simple in-memory sessions
+# add near your other imports
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
+
+PUBLIC_PATHS = {
+    "/",
+    "/me",
+    "/auth/login",
+    "/auth/callback",
+    "/auth/logout",
+    "/healthz",
+}
+
+async def get_db():
+    return await asyncpg.connect(
+        host=os.getenv("DB_HOST", "postgis"),
+        port=int(os.getenv("DB_PORT", "5432")),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME"),
+    )
+
+class RequireAuthForGraphQL(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        path = request.url.path
+
+        # Allow public paths (and static assets if you have them)
+        if path in PUBLIC_PATHS or path.startswith("/static"):
+            return await call_next(request)
+
+        # Require session for /graphql (both GET and POST)
+        if path.startswith("/graphql"):
+            sid = request.cookies.get(SESSION_COOKIE)
+            sess = app.state.sessions.get(sid) if sid else None
+            if not sess:
+                return JSONResponse({"detail": "Not authenticated"}, status_code=401)
+
+        return await call_next(request)
+
+# register it after creating `app = FastAPI()`
+
 
 # --- Config -------------------------------------------------------------------
-SESSION_COOKIE = "__Host_sid"  # For local HTTP, consider using just "sid"
+SESSION_COOKIE = "sid" 
 SESSION_TTL = 7 * 24 * 3600
 
 OIDC_ISSUER = os.getenv("OIDC_ISSUER")
@@ -27,27 +68,25 @@ SECURE_COOKIE = APP_BASE_URL.startswith("https://")  # __Host_ requires Secure
 # --- App & sessions -----------------------------------------------------------
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key=os.getenv("FASTAPI_SESSION_SECRET"))
+app.add_middleware(RequireAuthForGraphQL)
 app.state.sessions = MemorySessions(ttl_seconds=SESSION_TTL)
 
 # --- OAuth (Keycloak) ---------------------------------------------------------
 oauth = OAuth()
+# replace server_metadata_url=... with explicit server_metadata
 oauth.register(
     name="keycloak",
     client_id=OIDC_CLIENT_ID,
     client_secret=OIDC_CLIENT_SECRET,
-    # Front-channel (browser) → localhost on host
+
     authorize_url="http://localhost:8080/realms/dev/protocol/openid-connect/auth",
-    # Back-channel (API container) → service DNS name
     access_token_url="http://keycloak:8080/realms/dev/protocol/openid-connect/token",
     client_kwargs={"scope": "openid email profile"},
-    # Minimal metadata so parse_id_token validates 'iss' and fetches JWKS
-    server_metadata={
-        "issuer": "http://localhost:8080/realms/dev",
-        "jwks_uri": "http://keycloak:8080/realms/dev/protocol/openid-connect/certs",
-        "userinfo_endpoint": "http://keycloak:8080/realms/dev/protocol/openid-connect/userinfo",
-        "end_session_endpoint": "http://localhost:8080/realms/dev/protocol/openid-connect/logout",
-    },
+
+    # IMPORTANT: use a URL; Authlib will fetch + cache this
+    server_metadata_url="http://127.0.0.1:8000/.well-known/kc-oidc.json",
 )
+
 
 def set_session_cookie(resp: Response, sid: str):
     resp.set_cookie(
@@ -57,23 +96,39 @@ def set_session_cookie(resp: Response, sid: str):
         samesite="lax",
         max_age=SESSION_TTL,
         path="/",
-        secure=SECURE_COOKIE,  # set True in prod/HTTPS
+        secure=SECURE_COOKIE  # set True in prod/HTTPS
     )
 
 # --- Auth routes --------------------------------------------------------------
 @app.get("/auth/login")
 async def login(request: Request):
-    # PKCE: create verifier + S256 challenge
-    code_verifier = generate_token(48)  # RFC 7636: 43–128 chars
+    code_verifier = generate_token(48)
     request.session["code_verifier"] = code_verifier
     code_challenge = create_s256_code_challenge(code_verifier)
 
+    redirect_uri = str(request.url_for("auth_callback"))  # dynamic host/port
+
     return await oauth.keycloak.authorize_redirect(
         request,
-        redirect_uri=REDIRECT_URI,
+        redirect_uri=redirect_uri,
         code_challenge=code_challenge,
         code_challenge_method="S256",
     )
+
+# add near your other routes
+@app.get("/.well-known/kc-oidc.json")
+async def kc_oidc_metadata():
+    return {
+        "issuer": "http://localhost:8080/realms/dev",
+        "jwks_uri": "http://keycloak:8080/realms/dev/protocol/openid-connect/certs",
+        "userinfo_endpoint": "http://keycloak:8080/realms/dev/protocol/openid-connect/userinfo",
+        "end_session_endpoint": "http://localhost:8080/realms/dev/protocol/openid-connect/logout",
+    }
+
+
+@app.get("/_debug/oidc")
+async def debug_oidc():
+    return oauth.keycloak.server_metadata
 
 @app.get("/auth/callback")
 async def auth_callback(request: Request):
@@ -85,31 +140,73 @@ async def auth_callback(request: Request):
 
     code_verifier = request.session.pop("code_verifier", None)
     token = await oauth.keycloak.authorize_access_token(
-        request,
-        code_verifier=code_verifier,
+        request, code_verifier=code_verifier
     )
-    claims = await oauth.keycloak.parse_id_token(request, token)
 
-    iss = claims["iss"]; sub = claims["sub"]
+    nonce = request.session.pop("oidc_nonce", None)
+
+    # Decode claims (prefer ID token; fallback to userinfo)
+    if token.get("id_token"):
+        try:
+            # Newer Authlib: no request arg
+            claims = await oauth.keycloak.parse_id_token(token, nonce=nonce)
+        except TypeError:
+            # Older Authlib requires request first
+            claims = await oauth.keycloak.parse_id_token(request, token, nonce=nonce)
+    else:
+        resp = await oauth.keycloak.get("userinfo", token=token)
+        claims = resp.json()
+
+    # Pull fields with safe fallbacks
+    issuer = claims.get("iss") or oauth.keycloak.server_metadata["issuer"]
+    subject = claims["sub"]  # userinfo always has "sub"
+
     email = claims.get("email")
-    name = claims.get("name") or claims.get("preferred_username")
+    name = claims.get("name") or claims.get("preferred_username") or email or subject
 
-    # TODO: look up or create your local user here from (iss, sub)
-    user_id = 1
+    provider = "keycloak"
 
+    # --- upsert local user ---
+    conn = await get_db()
+    try:
+        row = await conn.fetchrow("""
+            SELECT user_id FROM user_identities
+            WHERE provider=$1 AND issuer=$2 AND subject=$3
+        """, provider, issuer, subject)
+
+        if row:
+            user_id = row["user_id"]
+        else:
+            user_id = (await conn.fetchrow("""
+                INSERT INTO users(email, name) VALUES($1, $2)
+                RETURNING id
+            """, email, name))["id"]
+
+            await conn.execute("""
+                INSERT INTO user_identities (user_id, provider, issuer, subject, email)
+                VALUES ($1, $2, $3, $4, $5)
+                ON CONFLICT (provider, issuer, subject)
+                DO UPDATE SET email=EXCLUDED.email
+            """, user_id, provider, issuer, subject, email)
+    finally:
+        await conn.close()
+
+    # Session payload (use the values you defined above)
     payload = {
         "user_id": user_id,
-        "issuer": iss,
-        "subject": sub,
+        "issuer": issuer,
+        "subject": subject,
         "email": email,
         "name": name,
         "roles": ["user"],
-        "id_token": token.get("id_token"),  # optional (for SSO logout)
+        "id_token": token.get("id_token"),  # for SSO logout
     }
+
     sid = app.state.sessions.create(payload)
     resp = RedirectResponse(url="/")
     set_session_cookie(resp, sid)
     return resp
+
 
 @app.post("/auth/logout")
 async def logout(request: Request):

@@ -73,11 +73,13 @@ services:
 
       # strict hostnames is fine in dev if you set these two URLs explicitly:
       KC_HOSTNAME_STRICT: "true"
-      KC_HOSTNAME_STRICT_BACKCHANNEL: "true"
+      #change to false
+      KC_HOSTNAME_STRICT_BACKCHANNEL: "false"
       KC_HOSTNAME_STRICT_HTTPS: "false"
 
       # 👇 IMPORTANT: use localhost for BOTH
       KC_HOSTNAME_URL:  http://localhost:8080
+      #change to kc
       KC_HOSTNAME_ADMIN_URL: http://localhost:8080
     
     ports:
