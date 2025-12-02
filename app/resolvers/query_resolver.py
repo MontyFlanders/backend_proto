@@ -25,7 +25,7 @@ class Query:
             user_id=int(r["user_id"]) if r.get("user_id") is not None else None,
             title=r.get("title") or "",
             description=r.get("description") or "",
-            image=r.get("image_url"),  # or r.get("image") if you changed the SQL
+            image=r.get("image_url"),  
             likes=int(r.get("likes") or 0),
             dislikes=int(r.get("dislikes") or 0),
             created_at=r.get("created_at"),
@@ -41,7 +41,6 @@ class Query:
         if data is None:
             return None
 
-        # Drop the "reports" field if present
         data.pop("reports", None)
 
         return Post(**data)
@@ -59,7 +58,6 @@ class Query:
         rows = await info.context["graph_service"].get_my_posts(uid)
         return [Post(**r) for r in rows]
     
-    # remove later 
     @strawberry.field
     async def user(self, info: Info) -> Optional[User]:
         claims = info.context.get("jwt_claims")
@@ -68,10 +66,8 @@ class Query:
             raise GraphQLError("Not authenticated or email missing in token")
 
         email = claims["email"]
-        # If you added get_user_by_email on GraphService:
         data = await info.context["graph_service"].get_user_by_email(email)
-        # Alternatively, call the adapter directly:
-        # data = await PostgresAdapter().fetch_user_by_email(email)
+
 
         return User(**data) if data else None
     
@@ -93,7 +89,7 @@ class Query:
                 created_at=r.get("created_at"),
                 latitude=float(r["latitude"]) if r.get("latitude") is not None else 0.0,
                 longitude=float(r["longitude"]) if r.get("longitude") is not None else 0.0,
-                tags=[],  # friend sites don’t include tags per your note
+                tags=[],  
             )
             for r in rows
         ]
@@ -136,10 +132,10 @@ class Query:
         neLng: float,
         swLat: float,
         swLng: float,
-        tags: Optional[List[str]] = None,   # NEW
+        tags: Optional[List[str]] = None,  
     ) -> list[Site]:
         rows = await info.context["graph_service"].get_sites_within_bounds(
-            neLat, neLng, swLat, swLng, tags  # pass through
+            neLat, neLng, swLat, swLng, tags  
         )
         return [Site(**r) for r in rows]
     
@@ -173,7 +169,7 @@ class Query:
                 user_id=int(r["user_id"]) if r.get("user_id") is not None else None,
                 title=r.get("title") or "",
                 description=r.get("description") or "",
-                image=r.get("image_url"),  # keep consistent with your liked flow
+                image=r.get("image_url"),  
                 likes=int(r.get("likes") or 0),
                 dislikes=int(r.get("dislikes") or 0),
                 created_at=r.get("created_at"),
@@ -333,7 +329,7 @@ class Query:
         limit: int | None = None,
         offset: int = 0,
     ) -> List[UserLight]:
-        pg = info.context["graph_service"].pg  # or however you access PostgresAdapter
+        pg = info.context["graph_service"].pg  
         rows = await pg.fetch_all_users_light(limit=limit, offset=offset)
         return [
             UserLight(
@@ -464,7 +460,7 @@ class Query:
         # Run sync OpenAI client in a worker thread so we don't block the event loop
         def _call_openai() -> str:
             resp = client.chat.completions.create(
-                model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"),  # or whatever you configure
+                model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"), 
                 messages=[
                     {"role": "system", "content": "You are Antiquity Atlas, a helpful tour guide, willing to help Antiquity Atlas users to learn more about historical sites."},
                     {"role": "user", "content": user_message},

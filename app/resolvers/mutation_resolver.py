@@ -74,7 +74,6 @@ class Mutation:
         
         if not deleted:
             # Either not found, or not owned by this user
-            # You can split these cases if you prefer, but this is safer (no info leak).
             raise GraphQLError("Not found or not authorized to delete this comment")
         return True
 
@@ -381,10 +380,6 @@ class Mutation:
         log.info(key)
         site: Dict[str, Any] = await graph.set_site_image(site_id, key)
 
-        # If you want tags here, either:
-        # - call a PG fetch_one_site that includes tags, OR
-        # - set tags=[] and let a later query fetch them properly.
-        # Assuming 'site' has no tags field, we'll default to empty list:
         return Site(
             id=int(site["id"]),
             user_id=int(site["user_id"]),
