@@ -1,0 +1,12 @@
+{
+  "availability-zones:account=260758035473:region=us-west-2": [
+    "us-west-2a",
+    "us-west-2b",
+    "us-west-2c",
+    "us-west-2d"
+  ],
+  "hosted-zone:account=260758035473:domainName=antiquityatlas.com:region=us-west-2": {
+    "Id": "/hostedzone/Z09165653NZK3P8FH25I8",
+    "Name": "antiquityatlas.com."
+  }
+}

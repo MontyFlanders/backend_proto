@@ -1,263 +1,182 @@
 # app/main.py
 import os
-from fastapi import FastAPI, Request, HTTPException, Response
-from starlette.responses import RedirectResponse, JSONResponse
-from starlette.middleware.sessions import SessionMiddleware
-from authlib.integrations.starlette_client import OAuth
-from authlib.common.security import generate_token
-from authlib.oauth2.rfc7636 import create_s256_code_challenge
-import asyncpg
+import logging
+from app.services.postgresql_adapter import PostgresAdapter
+from fastapi import FastAPI, Request
+from starlette.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 from strawberry.fastapi import GraphQLRouter
-from . import graphql_schema
+from typing import Any, Dict
+from app import graphql_schema
 from app.services.graph_service import GraphService
 from app.services.s3_service import S3Service
-from app.security.sessions import MemorySessions  # your simple in-memory sessions
-# add near your other imports
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import JSONResponse
+from app.security.oidc import verify_access_token
+from app.db import get_pg_pool, ensure_user_from_claims
+# NEW: async Neo4j adapter (your async version)
+from app.services.neo4j_adapter import Neo4jAdapter
 
-PUBLIC_PATHS = {
-    "/",
-    "/me",
-    "/auth/login",
-    "/auth/callback",
-    "/auth/logout",
-    "/healthz",
-}
+logger = logging.getLogger("uvicorn")
 
-async def get_db():
-    return await asyncpg.connect(
-        host=os.getenv("DB_HOST", "postgis"),
-        port=int(os.getenv("DB_PORT", "5432")),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        database=os.getenv("DB_NAME"),
-    )
+PUBLIC_PATHS = {"/", "/healthz"}
 
-class RequireAuthForGraphQL(BaseHTTPMiddleware):
-    async def dispatch(self, request, call_next):
+# --- Auth middleware: Bearer-only for /graphql --------------------------------
+class RequireBearerForGraphQL(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
         path = request.url.path
 
-        # Allow public paths (and static assets if you have them)
         if path in PUBLIC_PATHS or path.startswith("/static"):
             return await call_next(request)
 
-        # Require session for /graphql (both GET and POST)
         if path.startswith("/graphql"):
-            sid = request.cookies.get(SESSION_COOKIE)
-            sess = app.state.sessions.get(sid) if sid else None
-            if not sess:
-                return JSONResponse({"detail": "Not authenticated"}, status_code=401)
+            auth = request.headers.get("authorization") or request.headers.get("Authorization")
+            if not auth or not auth.lower().startswith("bearer "):
+                return JSONResponse({"detail": "missing_bearer_token"}, status_code=401)
+            token = auth.split(" ", 1)[1].strip()
 
-        return await call_next(request)
+            try:
+                claims = await verify_access_token(token)
+            except Exception as e:
+                return JSONResponse({"detail": f"invalid_token: {e}"}, status_code=401)
 
-# register it after creating `app = FastAPI()`
+            request.state.jwt_claims = claims
+            request.state.user_id = claims.get("sub")
 
+            # Ensure the user exists/updated in Postgres
+            try:
+                user = await ensure_user_from_claims(claims)
+                request.state.app_user = user
+            except Exception:
+                logger.exception("ensure_user_from_claims failed")
 
-# --- Config -------------------------------------------------------------------
-SESSION_COOKIE = "sid" 
-SESSION_TTL = 7 * 24 * 3600
+            # Optional: mirror user to Neo on each request (tiny scale OK).
+            try:
+                neo = Neo4jAdapter()
+                stats = await neo.upsert_users([{
+                    "pgId": user["id"],
+                    "email": user["email"],
+                    "name": user["name"],
+                    "profile_pic_url": user.get("profile_pic_url"),
+                }])
+            except Exception as e:
+                logger.warning("neo4j upsert_users failed (non-fatal): %s", e)
+            finally:
+                try:
+                    await neo.close()
+                except Exception:
+                    pass
 
-OIDC_ISSUER = os.getenv("OIDC_ISSUER")
-OIDC_CLIENT_ID = os.getenv("OIDC_CLIENT_ID")
-OIDC_CLIENT_SECRET = os.getenv("OIDC_CLIENT_SECRET")  # may be None for Public + PKCE
-APP_BASE_URL = os.getenv("APP_BASE_URL", "http://localhost:8000")
-REDIRECT_URI = f"{APP_BASE_URL}/auth/callback"
-SECURE_COOKIE = APP_BASE_URL.startswith("https://")  # __Host_ requires Secure
+            return await call_next(request)
 
-# --- App & sessions -----------------------------------------------------------
+# --- App ----------------------------------------------------------------------
 app = FastAPI()
-app.add_middleware(SessionMiddleware, secret_key=os.getenv("FASTAPI_SESSION_SECRET"))
-app.add_middleware(RequireAuthForGraphQL)
-app.state.sessions = MemorySessions(ttl_seconds=SESSION_TTL)
+app.add_middleware(RequireBearerForGraphQL)
 
-# --- OAuth (Keycloak) ---------------------------------------------------------
-oauth = OAuth()
-# replace server_metadata_url=... with explicit server_metadata
-oauth.register(
-    name="keycloak",
-    client_id=OIDC_CLIENT_ID,
-    client_secret=OIDC_CLIENT_SECRET,
+@app.get("/healthz")
+async def healthz():
+    return {"ok": True}
 
-    authorize_url="http://localhost:8080/realms/dev/protocol/openid-connect/auth",
-    access_token_url="http://keycloak:8080/realms/dev/protocol/openid-connect/token",
-    client_kwargs={"scope": "openid email profile"},
-
-    # IMPORTANT: use a URL; Authlib will fetch + cache this
-    server_metadata_url="http://127.0.0.1:8000/.well-known/kc-oidc.json",
-)
-
-
-def set_session_cookie(resp: Response, sid: str):
-    resp.set_cookie(
-        key=SESSION_COOKIE,
-        value=sid,
-        httponly=True,
-        samesite="lax",
-        max_age=SESSION_TTL,
-        path="/",
-        secure=SECURE_COOKIE  # set True in prod/HTTPS
-    )
-
-# --- Auth routes --------------------------------------------------------------
-@app.get("/auth/login")
-async def login(request: Request):
-    code_verifier = generate_token(48)
-    request.session["code_verifier"] = code_verifier
-    code_challenge = create_s256_code_challenge(code_verifier)
-
-    redirect_uri = str(request.url_for("auth_callback"))  # dynamic host/port
-
-    return await oauth.keycloak.authorize_redirect(
-        request,
-        redirect_uri=redirect_uri,
-        code_challenge=code_challenge,
-        code_challenge_method="S256",
-    )
-
-# add near your other routes
-@app.get("/.well-known/kc-oidc.json")
-async def kc_oidc_metadata():
-    return {
-        "issuer": "http://localhost:8080/realms/dev",
-        "jwks_uri": "http://keycloak:8080/realms/dev/protocol/openid-connect/certs",
-        "userinfo_endpoint": "http://keycloak:8080/realms/dev/protocol/openid-connect/userinfo",
-        "end_session_endpoint": "http://localhost:8080/realms/dev/protocol/openid-connect/logout",
-    }
-
-
-@app.get("/_debug/oidc")
-async def debug_oidc():
-    return oauth.keycloak.server_metadata
-
-@app.get("/auth/callback")
-async def auth_callback(request: Request):
-    if err := request.query_params.get("error"):
-        raise HTTPException(
-            status_code=400,
-            detail=f"OIDC error: {err} - {request.query_params.get('error_description')}"
-        )
-
-    code_verifier = request.session.pop("code_verifier", None)
-    token = await oauth.keycloak.authorize_access_token(
-        request, code_verifier=code_verifier
-    )
-
-    nonce = request.session.pop("oidc_nonce", None)
-
-    # Decode claims (prefer ID token; fallback to userinfo)
-    if token.get("id_token"):
-        try:
-            # Newer Authlib: no request arg
-            claims = await oauth.keycloak.parse_id_token(token, nonce=nonce)
-        except TypeError:
-            # Older Authlib requires request first
-            claims = await oauth.keycloak.parse_id_token(request, token, nonce=nonce)
-    else:
-        resp = await oauth.keycloak.get("userinfo", token=token)
-        claims = resp.json()
-
-    # Pull fields with safe fallbacks
-    issuer = claims.get("iss") or oauth.keycloak.server_metadata["issuer"]
-    subject = claims["sub"]  # userinfo always has "sub"
-
-    email = claims.get("email")
-    name = claims.get("name") or claims.get("preferred_username") or email or subject
-
-    provider = "keycloak"
-
-    # --- upsert local user ---
-    conn = await get_db()
-    try:
-        row = await conn.fetchrow("""
-            SELECT user_id FROM user_identities
-            WHERE provider=$1 AND issuer=$2 AND subject=$3
-        """, provider, issuer, subject)
-
-        if row:
-            user_id = row["user_id"]
-        else:
-            user_id = (await conn.fetchrow("""
-                INSERT INTO users(email, name) VALUES($1, $2)
-                RETURNING id
-            """, email, name))["id"]
-
-            await conn.execute("""
-                INSERT INTO user_identities (user_id, provider, issuer, subject, email)
-                VALUES ($1, $2, $3, $4, $5)
-                ON CONFLICT (provider, issuer, subject)
-                DO UPDATE SET email=EXCLUDED.email
-            """, user_id, provider, issuer, subject, email)
-    finally:
-        await conn.close()
-
-    # Session payload (use the values you defined above)
-    payload = {
-        "user_id": user_id,
-        "issuer": issuer,
-        "subject": subject,
-        "email": email,
-        "name": name,
-        "roles": ["user"],
-        "id_token": token.get("id_token"),  # for SSO logout
-    }
-
-    sid = app.state.sessions.create(payload)
-    resp = RedirectResponse(url="/")
-    set_session_cookie(resp, sid)
-    return resp
-
-
-@app.post("/auth/logout")
-async def logout(request: Request):
-    sid = request.cookies.get(SESSION_COOKIE)
-    id_token_hint = None
-    if sid:
-        sess = app.state.sessions.get(sid)
-        if sess:
-            id_token_hint = sess.get("id_token")
-        app.state.sessions.delete(sid)
-
-    # Optional SSO logout
-    try:
-        metadata = await oauth.keycloak.load_server_metadata()
-        end_session = metadata.get("end_session_endpoint")
-    except Exception:
-        end_session = None
-
-    resp = JSONResponse({"ok": True})
-    resp.delete_cookie(SESSION_COOKIE, path="/")
-    if end_session and id_token_hint:
-        return RedirectResponse(
-            url=f"{end_session}?id_token_hint={id_token_hint}&post_logout_redirect_uri={APP_BASE_URL}/"
-        )
-    return resp
-
-@app.get("/me")
-async def me(request: Request):
-    sid = request.cookies.get(SESSION_COOKIE)
-    data = app.state.sessions.get(sid) if sid else None
-    return {"session": bool(sid), "data": data}
-
-# --- GraphQL wiring -----------------------------------------------------------
+# GraphQL context: surface services + identity
 async def get_context(request: Request):
     return {
         "graph_service": GraphService(),
         "s3_service": S3Service(),
-        "session": app.state.sessions.get(request.cookies.get(SESSION_COOKIE)) if request.cookies else None,
+        "user_id": getattr(request.state, "user_id", None),
+        "jwt_claims": getattr(request.state, "jwt_claims", None),
+        "app_user": getattr(request.state, "app_user", None),
     }
 
-graphql_app = GraphQLRouter(
-    graphql_schema.schema,
-    context_getter=get_context,
-)
+graphql_app = GraphQLRouter(graphql_schema.schema, context_getter=get_context)
 app.include_router(graphql_app, prefix="/graphql")
 
-# --- Startup ------------------------------------------------------------------
+# --- Lifecycle ---------------------------------------------------------------
 @app.on_event("startup")
 async def startup():
-    s3 = S3Service()
+    # S3 bucket existence check (lightweight)
     try:
+        s3 = S3Service()
         s3.s3.head_bucket(Bucket=s3.bucket)
+        logger.info("S3: bucket %s is reachable in region %s", s3.bucket, s3.region)
     except Exception:
-        s3.s3.create_bucket(Bucket=s3.bucket)
+        logger.exception("S3: bucket check failed")
+    try:
+        await get_pg_pool()
+        logger.info("PG: pool ready")
+        # try:
+        #     pg = PostgresAdapter()
+        #     await pg.migrate_add_reports_and_user_tags()
+        #     logger.info("PG: migrate_add_reports_and_user_tags succeeded")
+        # except Exception:
+        #     logger.exception("PG: migrate_add_reports_and_user_tags FAILED")
+    except Exception:
+        logger.exception("PG: pool warm FAILED")
+
+
+    # Ensure Neo4j constraints upfront (runs once, idempotent)
+    logger.info("Ensuring Neo4j constraints… NEO4J_URI=%r", os.getenv("NEO4J_URI"))
+    neo = Neo4jAdapter()
+    try:
+        await neo.ensure_constraints_with_retry()
+        # If you want to bootstrap graph from PG on start (small data):
+        # await bootstrap_graph_from_postgres(neo)
+    finally:
+        await neo.close()
+
+@app.on_event("shutdown")
+async def shutdown():
+    # Close PG pool
+    pool = await get_pg_pool()
+    await pool.close()
+    
+
+# Optional: tiny bootstrap function if you decide to sync PG→Neo on startup
+async def bootstrap_graph_from_postgres(neo):
+    from app.services.postgresql_adapter import PostgresAdapter
+
+    pg = PostgresAdapter()
+
+    # ---- Fetch all from PG
+    users    = [dict(r) for r in await pg.fetch_all_users_light()]
+    sites    = [dict(r) for r in await pg.fetch_all_sites_light()]
+    posts    = [dict(r) for r in await pg.fetch_all_posts_light()]
+    comments = [dict(r) for r in await pg.fetch_all_comments_light()]
+
+    def _log_result(kind: str, count: int, res: Dict[str, Any] | None):
+        if count == 0:
+            logger.info("neo4j upsert %-8s: skipped (no rows)", kind)
+            return
+        if not res:
+            logger.warning("neo4j upsert %-8s: no result returned (n=%d)", kind, count)
+            return
+        logger.info(
+            "neo4j upsert %-8s: n=%d | nodes_created=%d nodes_deleted=%d "
+            "rels_created=%d rels_deleted=%d props_set=%d contains_updates=%s",
+            kind, count,
+            res.get("nodes_created", 0), res.get("nodes_deleted", 0),
+            res.get("relationships_created", 0), res.get("relationships_deleted", 0),
+            res.get("properties_set", 0), res.get("contains_updates"),
+        )
+
+    # ---- Upserts with robust logging
+    try:
+        res = await neo.upsert_users(users) if users else None
+        _log_result("users", len(users), res)
+    except Exception:
+        logger.exception("neo4j upsert_users failed")
+
+    try:
+        res = await neo.upsert_sites(sites) if sites else None
+        _log_result("sites", len(sites), res)
+    except Exception:
+        logger.exception("neo4j upsert_sites failed")
+
+    try:
+        res = await neo.upsert_posts(posts) if posts else None
+        _log_result("posts", len(posts), res)
+    except Exception:
+        logger.exception("neo4j upsert_posts failed")
+
+    try:
+        res = await neo.upsert_comments(comments) if comments else None
+        _log_result("comments", len(comments), res)
+    except Exception:
+        logger.exception("neo4j upsert_comments failed")

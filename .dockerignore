@@ -1,0 +1,10 @@
+.git
+node_modules
+cdk.out
+.env
+data/
+keycloak-themes/
+tests/
+__pycache__/
+*.pyc
+*.log

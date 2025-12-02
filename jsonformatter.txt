@@ -1,0 +1,266 @@
+[
+  {
+    "id": 1,
+    "title": "Pioneer Park",
+    "description": "A historic park used by early Mormon pioneers.",
+    "latitude": 40.7616,
+    "longitude": -111.9034,
+    "imageKey": "assets/dummy_data_photos/image.png"
+  },
+  {
+    "id": 2,
+    "title": "This Is The Place Monument",
+    "description": "Commemorates the arrival of Brigham Young and Mormon pioneers.",
+    "latitude": 40.7516,
+    "longitude": -111.8176,
+    "imageKey": "assets/dummy_photos/this_is_the_place.jpg"
+  },
+  {
+    "id": 3,
+    "title": "Fort Douglas",
+    "description": "A historic military fort from the 1860s, now part of the University of Utah.",
+    "latitude": 40.7658,
+    "longitude": -111.8362,
+    "imageKey": null
+  },
+  {
+    "id": 4,
+    "title": "Salt Lake Brewery",
+    "description": "Not much is currently known about the Salt Lake Brewery.",
+    "latitude": 40.75733,
+    "longitude": -111.862308,
+    "imageKey": "assets/dummy_photos/salt-lake-brewery-panel-a.jpg"
+  },
+  {
+    "id": 5,
+    "title": "Baddley House",
+    "description": "Built in 1871 of stuccoed adobe by George Baddley, an English immigrant to Utah in 1850. Baddley was a potter, distiller, and member of the 1861 group called to settle Utah's Dixie. He was active in the development of southern Utah's wine industry until his return to Salt Lake City in 1864. The George Baddley house reflects Greek Revival style, although the architect is unknown.",
+    "latitude": 40.762599,
+    "longitude": -111.862871,
+    "imageKey": "assets/dummy_photos/baddley-house-george-panel-a.jpg"
+  },
+  {
+    "id": 6,
+    "title": "Trolley Square",
+    "description": "Trolley Square was the site of the Church of Jesus Christ of Latter Day Saints 10th Ward Square until 1888 when it was purchased and used as a territorial fairgrounds through 1901. Car barns and repair shops built 1908-1910 under the direction of E. H. Harriman for Utah Light and Railway Company. Barns housed Salt Lake City buses until 1970. Trolley Square was renovated in 1972, in 2008 and 2014. Today Trolley Square operates as a large retail area with a variety of shops, restaurants, and a grocery store.",
+    "latitude": 40.758454,
+    "longitude": -111.877357,
+    "imageKey": "assets/dummy_photos/trolley-square-panel-a.jpg"
+  },
+  {
+    "id": 7,
+    "title": "Ensign Peak",
+    "description": "July 26, 1847, two days after the Mormon pioneers entered the Salt Lake Valley, Brigham Young and party climbed to the top of Ensign Peak and made a careful survey of the mountains, canyons, and streams. In the group were Heber C. Kimball, Wilford Woodruff, George A. Smith, Ezra T. Benson, Willard Richards, Albert Carrington and William Clayton. Wilford Woodruff first ascended the peak, and suggested it was a fitting place to 'set up an Ensign'.",
+    "latitude": 40.796742,
+    "longitude": -111.929138,
+    "imageKey": "assets/dummy_photos/ensign-peak-panel-a.jpg"
+  },
+  {
+    "id": 8,
+    "title": "Salisbury House",
+    "description": "The Salisbury house is a Neo-Classical structure designed by Frederick A. Hale. The home was constructed in 1898 by for Orange J. Salisbury, out of rock quarried in East Canyon. O. J. Salisbury had an interest in the Wells Fargo Stage Line and numerous mines throughout the West. In 1934, the home was purchased by Evans and Early mortuary who converted the house into a funeral home.",
+    "latitude": 40.766756,
+    "longitude": -111.874429,
+    "imageKey": "assets/dummy_photos/salisbury-house-oj-panel-a.jpg"
+  },
+  {
+    "id": 9,
+    "title": "Donelson-Pyper House",
+    "description": "Charles M. Donelson Jr. bought this property for his father in 1890 and built this house the following year. Donelson, who was both a barber and a carpenter, may have helped build this Second Empire style house. The Donelsons lived here for over twenty years.",
+    "latitude": 40.768281,
+    "longitude": -111.855325,
+    "imageKey": "assets/dummy_photos/alta-club-panel-a.jpg"
+  },
+  {
+    "id": 10,
+    "title": "Eagle Emporium",
+    "description": "The first Eagle Emporium was built in 1863 for William Jennings, a merchant, who opened a clothing and dry goods store in the structure. In 1873, Brigham Young opened the Zion Savings Bank and Trust Company in the same location, later becoming the Zion Bancorp. In 1912, Don Carlos Young, redesigned the building in a neo-classical fashion.",
+    "latitude": 40.766945,
+    "longitude": -111.891514,
+    "imageKey": "assets/dummy_photos/eagle-emporium-panel-a.jpg"
+  },
+  {
+    "id": 11,
+    "title": "Evans House (John A.)",
+    "description": "John A. Evans, the general manager of the Deseret News, had this Victorian style house built in 1889. The architect was Richard Kletting, one of the best-known architects in Salt Lake history. John A Evans was born in Cedar City on March 23, 1865, His father, David Evans, worked for the Deseret News, staff and was a stenographer under Brigham Young and John Taylor. In 1879, John worked for Midgely, a painter and then started to work for the Deseret News. He worked as a bookkeeper, cashier, and business manager for the newspaper He was the first counselor in the Eighteenth Ward bishopric, He died in 1906, John and Florence's son, Richard L Evans, became an LDS Church apostle. He produced, wrote and presented 'Music and the Spoken Word with the Mormon Tabernacle Choir' on CBS Radio and Television for thirty-six years.",
+    "latitude": 40.7605601,
+    "longitude": -111.8881397,
+    "imageKey": "assets/dummy_photos/evans-house-johna-panel-a.jpg"
+  },
+  {
+    "id": 12,
+    "title": "First Presbyterian Church",
+    "description": "The First Presbyterian Church is one of Salt Lake City's most impressive Church structures, and one of the best examples of academic Gothic Revival. In November 1871, the First Presbyterian Church was organized in Salt Lake City with eleven members. The original church building was located on 200 South and 200 East. Designed by prominent Utah architect, Walter E. Ware, the church was completed and the sanctuary first used in May, 1906. The Presbyterian Church College (Westminster College) was also located on the property until 1913, when it moved to its present location on 1840 South and 1300 East. In 1955, the building was remodeled and enlarged to include a small chapel, a women's parlor, a large dining room, new choir, scout, office and classrooms, an auditorium and restrooms, A 2,000 pipe organ was also added. In 1968, floodlights were installed to illuminate the building's facade. The congregation presently includes about one-thousand members.",
+    "latitude": 40.7697137,
+    "longitude": -111.8808811,
+    "imageKey": "assets/dummy_photos/first-presbyterian-church-panel-a.jpg"
+  },
+  {
+    "id": 13,
+    "title": "Fisher House & Carriage House",
+    "description": "The Albert Fisher Mansion, built in 1893, is architecturally significant as an excellent example of the Victorian Eclectic style in Utah and as one of the few residential designs by Richard K. A. Kletting. Kletting was one of Utah's most prominent architects. The Fisher Mansion exhibits the large scale and Victorian detailing common to the Victorian Eclectic style, but also incorporates into its design some unusual features such as a box-like shape, stamped metal frieze foliation, and a Queen Anne inspired wrap-around porch with Eastlake and Romanesque appointments, which combine to create a distinctively unique example of the style. The two-story brick carriage house located behind the mansion is also significant, reflecting the massing and styling of the house. The Fisher Mansion is also historically significant as the only house associated with Albert Fisher; a pioneer in the brewing industry in Salt Lake City. Fisher was the founder of Fisher Brewing Company, the most enduring of the several breweries established in Utah in the late 1800s, and the only one of those to return to operation after the repeal of Prohibition.",
+    "latitude": 40.7653372,
+    "longitude": -111.92585,
+    "imageKey": "assets/dummy_photos/fisher-carriage-house-panel-a.jpg"
+  },
+  {
+    "id": 14,
+    "title": "Franklin House (Pedar)",
+    "description": "Built in 1901, the Pedar Franklin home is significant for its Classical Revival architecture and as the home of early Utah immigrant Pedar Franklin. Mr. Franklin came to Utah from Norway in 1873. He worked in the mines in little Cottonwood Canyon. Pedar Franklin died in 1906 and his wife Catherin W. Franklin lived in the house six more years. Frederick Curtis Richmond, a man whose ancestors founded Taunton, Massachusetts, in 1632, then purchased the house. In 1897, he came to Salt Lake City and was a member of the board of governors of the Salt Lake Commercial Club. He was president of the F. C. Richmond Machinery Company, dealing in mining, milling and smelting machinery. In 1939, Ernest D. Wright purchased the house. In 1963, the ownership was transferred to the Wright-Dunn Corporation.",
+    "latitude": 40.7690104,
+    "longitude": -111.8588982,
+    "imageKey": "assets/dummy_photos/franklin-house-pedar-panel-a.jpg"
+  },
+  {
+    "id": 15,
+    "title": "Freeze House (James)",
+    "description": "Built in 1892, the James P. Freeze Home is a large, two-and-a-half story Victorian structure with an asymmetrical dual-parlor floor plan. This home is a good example of early 1890s Queen Anne/Eastlake design and construction. The house is one of the best-preserved Victorian homes in downtown Salt Lake. It is in excellent historic condition, on both the exterior and interior. In 1874, this property was purchased by James Perry Freeze, an LDS pioneer, who owned it until 1901. James P. Freeze and his wives lived on this property for over a decade prior to building this Victorian home. This suggests that a previous home existed on this lot and was torn down when the Victorian home was built. It is unknown what type of dwelling predated the Victorian home. The architect was either C. H. Neilson or Carl E. Nielsen.",
+    "latitude": 40.7645961,
+    "longitude": -111.8698261,
+    "imageKey": "assets/dummy_photos/freeze-house-james-panel-a.jpg"
+  },
+  {
+    "id": 16,
+    "title": "Gentsch-Thompson House",
+    "description": "This Victorian Eclectic style mansion was built in 1896 for Frederic C. Gentcch, general superintendent of the Pacific Express Company. He sold the house to Ezra P. Thompson, Jr. in 1900, the same year that Thompson began serving the first of three terms as mayor of Salt Lake City. Thompson had lived previously in Park City for 15 years where he established a successful mining career and served two terms on the Park City Council. Thompson acquired much valuable real estate in Salt Lake City, including the Newhouse Building. He was a director of the National Bank of the Republic (later consolidated with Walker Brothers Bank) and the president of an investment firm. The Children's Service Society, a non-profit adoption and counseling agency, purchased the mansion in 1943.",
+    "latitude": 40.769011,
+    "longitude": -111.8743067,
+    "imageKey": "assets/dummy_photos/gentsch-thompson-house-panel-a.jpg"
+  },
+  {
+    "id": 17,
+    "title": "Grant-Walker House",
+    "description": "This is one of the best examples of Shingle Style architecture in Utah. It is also significant as the home of Joseph R. Walker, Jr., whose father was one of the founders of the Walker Brothers Bank. This house was built in 1900 for Robert D. Grant. The only information available on Grant is that he was involved in the mining business and lived here between 1900 and 1905. J.R. Walker, Jr., who worked with his father in the management of the Walker Brothers Bank and his many other business investments, then acquired the Grant Walker House. The house was owned by the Walker family until 1931. Phil L. Hansen purchased it in 1971.",
+    "latitude": 40.7697364,
+    "longitude": -111.8562953,
+    "imageKey": "assets/dummy_photos/grant-walker-house-panel-a.jpg"
+  },
+  {
+    "id": 18,
+    "title": "Heber C. Kimball Grave Site",
+    "description": "The Heber C. Kimball grave site is located in the Kimball and Whitney Cemetery, one of the last private cemeteries in Salt Lake City. The Kimball and Whitney Cemetery was established in 1848, and since then, over 50 members of the two families have been buried on the land. The only marker that remains is for Heber C. Kimball, a member of the Quorum of the Twelve in the Church of Jesus Christ of Latter Day Saints, who died in 1868.",
+    "latitude": 40.6834429,
+    "longitude": -111.8903443,
+    "imageKey": "assets/dummy_photos/heber-c-kimball-grave-site-panel-a.jpg"
+  },
+  {
+    "id": 19,
+    "title": "Holy Cross Hospital Chapel",
+    "description": "Sisters Holy Cross and Bartholomew founded Holy Cross Hospital in 1875 under the auspices of the Catholic Church. Originally located in a small house about six blocks west of its current location, the hospital, only the second in the state, was operated by several Sisters and the doctors Fowler, Benedict and Benedict., offered their services for free. The main block of the present hospital building was constructed in 1883, and additions were built on in 1903, 1904, 1914, and 1920. The Romanesque Revival chapel was designed by Carl Neuhausen and built in 1904. An Italian artisan, Archill Peretti, crafted the interior of the chapel. Neuhausen also designed the west wing of the hospital which was later converted into three stories by architect Bernard O. Mecklenburg, who also designed the east wing addition in 1914.",
+    "latitude": 40.7696862,
+    "longitude": -111.8611393,
+    "imageKey": "assets/dummy_photos/holy-cross-hospital-chapel-panel-a.jpg"
+  },
+  {
+    "id": 20,
+    "title": "Morrow-Taylor House",
+    "description": "William Morrow built this Victorian Italianate Eclectic style house about 1884. Morrow was a 'painter and pioneer of Utah'. Upon the death of his wife Mary in 1884, the house was sold to John W. Taylor, son of John Taylor, president of the LDS Church. He was chosen as an Apostle the same year. Active in church affairs, he was excommunicated during polygamy controversy but was reinstated in 1965. The word 'May', appearing on a plaque on the front is the name of one of Taylors wives who lived here.",
+    "latitude": 40.7781645,
+    "longitude": -111.8950088,
+    "imageKey": "assets/dummy_photos/morrow-taylor-house-panel-a.jpg"
+  },
+  {
+    "id": 21,
+    "title": "Murdoch House (David Lennox)",
+    "description": "Completed in 1894, this mansion was constructed for David L. Murdock, a native of Cronbury, Scotland. Murdoch joined the Church of Jesus Christ of Latter-day Saints in Scotland and arrived in Utah in 1878. He and his wife, Elizabeth Pinkerton Thyne, settled first in Heber city then moved to Salt Lake City in 1883. Murdoch was the chief accountant or Z.C.M.I. and managed the 20th ward cooperative store. This two-story Queen Anne style mansion built of light brown brick with wood and red brick trim was designed by H.H. Anderson.",
+    "latitude": 40.7756292,
+    "longitude": -111.8745604,
+    "imageKey": "assets/dummy_photos/murdoch-house-david-lennox-panel-a.jpg"
+  },
+  {
+    "id": 22,
+    "title": "Orpheum Theatre (Promised Valley)",
+    "description": "Not much is currently known about the Orpheum Theatre.",
+    "latitude": 40.763396,
+    "longitude": -111.888144,
+    "imageKey": "assets/dummy_photos/orpheum-theatre-promised-valley-panel-a.jpg"
+  },
+  {
+    "id": 23,
+    "title": "Pioneer Trails State Park",
+    "description": "This Is The Place Heritage Park, was created in 1947, to commemorate the centennial anniversary of the arrival of the Mormon pioneers in Salt Lake Valley. The park started as a monument to the location where Brigham Young's party first entered the valley. The park itself began around 1957, from land around the monument first purchased by private citizens, later donated to the state for preservation purposes. Formerly known as the Pioneer Trails State Park, it was renamed in 1995 to separate itself from Pioneer Park. In 1998, management of the park was turned over to the newly created This Is The Place Foundation. The park houses several museums, monuments, and historic villages, open to the public. Today, the park has over 50 historic structures in its Heritage Village, including Brigham Young's farmhouse and Manti ZCMI mercantile store.",
+    "latitude": 40.752026,
+    "longitude": -111.859299,
+    "imageKey": "assets/dummy_photos/pioneer-trails-state-park-panel-a.jpg"
+  },
+  {
+    "id": 24,
+    "title": "Quayle House (Thomas)",
+    "description": "Originally located at 163 West 400 South, this Carpenter Gothic style house was built by Thomas Quayle in 1872. Quayle was born on the Isle of Man in 1835 and emigrated to Utah in September, 1847. Thomas was involved in freighting, and mining. He lived in this house with his wife Sarah and their eleven children. To prevent its demolition, the house was moved to this site in 1975 by the Utah Heritage Foundation.",
+    "latitude": 40.777996,
+    "longitude": -111.895324,
+    "imageKey": "assets/dummy_photos/quayle-house-thomas-panel-a.jpg"
+  },
+  {
+    "id": 25,
+    "title": "Town Club",
+    "description": "Built in 1909, this Colonial Revival house was originally the home of Mrs. Frances Horlick Walker, widow of Samuel S. Walker. The Walker brothers are known for their mining and banking interests in Utah. After her death in 1915, the house was rented and owned by various people, including Charles C. and Denise K. Bintz, who bought the house c. 1930. The Bintzes lived here with their family until 1939, when it was sold to Town Club. Town Club was founded by Wynn Conan Schram (Mrs. J. T.) in 1930 to develop and foster charitable, civic, educational, and social activities.",
+    "latitude": 40.769495,
+    "longitude": -111.849213,
+    "imageKey": "assets/dummy_photos/town-club-panel-a.jpg"
+  },
+  {
+    "id": 26,
+    "title": "Walker House (Matthew H.)",
+    "description": "This Spanish Colonial Revival style mansion was built in 1905 for Matthew H. Walker, a local financier and businessman. Noted architects Walter E. Ware and Alberto O. Treganza designed the home. The Walker family emigrated from England in 1850 and his father died soon after. In 1852, mother and sons joined a wagon train west and arrived in Utah almost penniless . After hard work, the Walker brothers acquired some credit and opened a mercantile store at Camp Floyd in 1859. After the fort closed down, the brothers moved their business to Salt Lake City and also opened a small banking business. They became quite successful. By 1903, Walker was the President of Walker Brothers Bank and the director of Utah Power and Light.",
+    "latitude": 40.769444,
+    "longitude": -111.931274,
+    "imageKey": "assets/dummy_photos/walker-house-matthewh-panel-a.jpg"
+  },
+  {
+    "id": 27,
+    "title": "Dickson-Gardner-Wolf House",
+    "description": "The Dickson-Gardner-Wolf House was built in 1905 for William Dickson, an attorney, on land purchased from John R. Park, one of the first presidents of the University of Utah. This Georgian Revival home was designed by Walter E. Ware & Alberto Treganza. The home was sold to James Gardner, owner of Gardner and Adams Clothiers (formerly located at 138 S. Main Street). In 1924, the house was sold to another attorney, James H. Wolfe.",
+    "latitude": 40.77482,
+    "longitude": -111.886646,
+    "imageKey": "assets/dummy_photos/dickson-gardner-wolf-house-panel-a.jpg"
+  },
+  {
+    "id": 28,
+    "title": "Darling House (Elmer E.)",
+    "description": "This house is significant architecturally as a good example of Shingle Style architecture, designed by Frederick Albert Hale, and it is significant historically because of its association with a succession of prominent men. This house was built about 1892 by prominent developer F. E. McGurrin whose firm of McGurrin and Darling built many houses in the Avenues Historic District. He sold this corner property to Newell Beeman in 1892 for $6000. Born in Michigan, Beeman came to Utah in the 1890s and became owner of the Salt Lake Photo Supply Company. He also had an interest in several mining companies. Beeman lived in the house nearly ten years. In 1902, he sold it to Hoyt Sherman. Born in Des Moines, Iowa, in 1853, he came to Salt Lake City in the late 1870s as an employee of the Union Pacific Railroad. In addition, he and E. Wilson founded the Wilson Sherman Insurance Agency of Salt Lake City. More importantly, he served as a member of the Utah Commission during the 1880s, which had been established as part of a concerted campaign by the federal government to suppress the practice of polygamy by members of the Mormon Church.",
+    "latitude": 40.77482,
+    "longitude": -111.886646,
+    "imageKey": "assets/dummy_photos/darling-house-elmere-panel-a.jpg"
+  },
+  {
+    "id": 29,
+    "title": "Danish Evangelical Lutheran Church",
+    "description": "The Tabor Lutheran-Baptist Church, the only non-Mormon Church on the Avenues, shows the attempt by Protestants to gain converts in Utah during the late 1880s and early 1900s. In 1907 the Church of Denmark purchased property for a Church from Ashby Snow and provided the $14,330 of the $17,330 needed to build the church. Theodore Lauridsen, a draughtsman for Richard Kletting designed the Gothic Revival building and Jens Huid was the mason. The Church was built in stages. The basement was completed in 1909, then the exterior and finally the interior and bell tower. The entire building was dedicated August 20, 1911. The Tabor Lutheran Church continued to use this building until 1963 when the congregation built a new Church at 709 E. 2nd S. The old chapel was sold to the Central Baptist Church.",
+    "latitude": 40.770474,
+    "longitude": -111.877968,
+    "imageKey": "assets/dummy_photos/danish-evangelical-lutheran-church-panel-a.jpg"
+  },
+  {
+    "id": 30,
+    "title": "Alta Club",
+    "description": "Built in 1897, and designed by architect Frederick A. Hale, who was responsible for many prominent office buildings, banks and private residences around Salt Lake City. The Italian Renaissance style structure was fashioned after popular East-coast private social clubs from the 1800s. The Alta Club was founded in 1883 with 81 members. Today, the Alta Club still operates out of the same building located in downtown Salt Lake City.",
+    "latitude": 40.769495,
+    "longitude": -111.849213,
+    "imageKey": "assets/dummy_photos/alta-club-panel-a.jpg"
+  },
+  {
+    "id": 31,
+    "title": "Utah State Capitol",
+    "description": "The Utah State Capitol, built in 1916, is a stunning neoclassical revival building located just two miles from downtown Salt Lake City. Visitors can marvel at the architecture and explore the 320,000 square foot interior with original murals, exhibits, and guided or self-guided tours that delve into Utah's rich history and government. Situated near Ensign Peak, it offers easy access to outdoor activities like hiking in Memory Grove Park and exploring City Creek Canyon.",
+    "latitude": 40.775754,
+    "longitude": -111.888154,
+    "imageKey": "assets/dummy_photos/XGREZyaFbd9xxHk7poPvpJ4TA5axGEri.jpeg"
+  },
+  {
+    "id": 32,
+    "title": "Cathedral of the Madeleine",
+    "description": "The Cathedral of the Madeleine, located in downtown Salt Lake City, is a Romanesque church completed in 1909. The exterior boasts Neo-Romanesque architecture while the interior showcases Spanish Gothic style with ceiling frescoes and colorful stained glass windows. The church was built largely by Mormon volunteers on land gifted to the Catholics by the Mormons. It hosts religious services as well as cultural events such as organ recitals and choirs.",
+    "latitude": 40.769686,
+    "longitude": -111.881716,
+    "imageKey": "assets/dummy_photos/2ZSUr1uxL0fsNa556pQZphQQuG0o1YGQ.jpeg"
+  },
+  {
+    "id": 33,
+    "title": "Temple Square",
+    "description": "Temple Square, located in Salt Lake City, is a 10-acre compound and the official headquarters of the Mormon Church. The area features impressive religious buildings such as the Salt Lake Temple with its soaring spires and statue of the angel Moroni, and the Tabernacle with its gilded 11,623-pipe organ and acoustically sensitive dome-shaped auditorium.",
+    "latitude": 40.770488,
+    "longitude": -111.891882,
+    "imageKey": "assets/dummy_photos/gQJRYPoQIDSQxy2D4kAhfVh1U0Zrfif2.jpeg"
+  }
+]

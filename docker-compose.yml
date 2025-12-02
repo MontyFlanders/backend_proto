@@ -117,15 +117,6 @@ services:
       APP_BASE_URL: ${APP_BASE_URL}
     ports:
       - "8000:8000"
-    depends_on:
-      postgis:
-        condition: service_started
-      neo4j:
-        condition: service_started
-      minio:
-        condition: service_started
-      keycloak:
-        condition: service_healthy
     networks:
       - default
       - keycloak_network
